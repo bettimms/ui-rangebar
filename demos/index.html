@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Angular Elessar demos</title>
+		<link rel="stylesheet" href="../node_modules/elessar/elessar.css">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css">
+
+		<style>
+			.red {
+				background-color: red !important;
+				text-align: center;
+				color: white;
+			}
+			.green {
+				background-color: mediumseagreen !important;
+				text-align: center;
+				color: white;
+			}
+		</style>
+	</head>
+	<body ng-app="app">
+
+		<div ng-controller="HomeController as homeCtrl">
+
+			<div>
+				<button class="btn btn-success" ng-click="homeCtrl.addRange()" ng-show="homeCtrl.buttonsControl.addBtnVisible">
+					Add range
+				</button>
+				<button class="btn btn-danger" ng-click="homeCtrl.removeRange()"
+				        ng-show="homeCtrl.buttonsControl.removeBtnVisible">Remove range
+				</button>
+				<button class="btn btn-primary" ng-click="homeCtrl.changeModel()"
+				        ng-show="homeCtrl.buttonsControl.changeBtnVisible">Change range
+				</button>
+				<button class="btn btn-info" ng-click="homeCtrl.reloadModel()"
+				        ng-show="homeCtrl.buttonsControl.reloadBtnVisible">Reload model
+				</button>
+			</div>
+			<hr>
+
+			<ui-rangebar ng-model="homeCtrl.values" ui-options="homeCtrl.options"
+			             ui-instance="homeCtrl.rangeBar"></ui-rangebar>
+			<pre>{{homeCtrl.values | json}}</pre>
+			<br>
+		</div>
+
+
+		<!--<script src="http://momentjs.com/downloads/moment.min.js"></script>-->
+		<script src="http://code.jquery.com/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.js"></script>
+		<script src="../node_modules/angular/angular.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+		<script src="../node_modules/elessar/dist/elessar.js"></script>
+
+		<script src="../src/js/ui.rangebar.js"></script>
+		<script src="app.js"></script>
+		<script src="services/PopoverService.js"></script>
+		<script src="examples/basic-example.js"></script>
+		<!--<script src="examples/timer-example.js"></script>-->
+		<!--<script src="examples/moment-example.js"></script>-->
+		<!--<script src="examples/week-example.js"></script>-->
+		<!--<script src="examples/day-example.js"></script>-->
+		<!--<script src="examples/nested-intervals-example.js"></script>-->
+		<!--<script src="examples/nested-popover-example.js"></script>-->
+		<!--<script src="examples/popover-example-example.js"></script>-->
+
+	</body>
+</html>

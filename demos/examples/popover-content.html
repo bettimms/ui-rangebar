@@ -1,0 +1,16 @@
+<div id="popover-content" class="hide">
+	<form class="form-horizontal" role="form">
+		<div class="input-group">
+			<input type="text" class="form-control range-start" ng-model="homeCtrl.start"/>
+			<span class="input-group-addon">&nbsp;</span>
+			<input type="text" class="form-control range-end" ng-model="homeCtrl.end"/>
+		</div>
+		<br/>
+		<button class="btn btn-danger range-delete" ng-click="homeCtrl.removeRange(true)">
+			<i class="fa fa-trash"></i>Delete
+		</button>
+		<button type="submit" class="btn btn-primary details-save" ng-click="homeCtrl.updateRange(true)">
+			<i class="fa fa-save"></i>Save
+		</button>
+	</form>
+</div>

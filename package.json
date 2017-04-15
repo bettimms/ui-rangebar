@@ -1,0 +1,38 @@
+{
+  "name": "ui-rangebar",
+  "version": "1.0.0-beta.1",
+  "description": "Angular directive for Elessar.js",
+  "main": "src/js/ui.rangebar.js",
+  "author": "Betim S., <bettimms@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bettimms/ui-rangebar.git"
+  },
+  "homepage": "https://github.com/bettimms/ui-rangebar",
+  "keywords": [
+    "ui-rangebar",
+    "ui-elessar",
+    "ng-elessar",
+    "angular-rangebar",
+    "angular-elessar"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "elessar": "1.8.4"
+  },
+  "devDependencies": {
+    "angular": "1.6.2",
+    "gulp": "^3.9.1",
+    "browser-sync": "^2.18.8"
+  }
+}
