@@ -1,6 +1,6 @@
 {
   "name": "ui-rangebar",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "description": "Angular directive for Elessar.js",
   "main": "src/js/ui.rangebar.js",
   "author": "Betim S., <bettimms@gmail.com>",
