@@ -292,7 +292,7 @@
                             eventHandler.off(range);
                             rangeBar.removeRange(range);
                         }
-                        scope.ngModel = null;
+                        // scope.ngModel = null;
                     },
                     getRawRange: function (range) {
                         //TODO Decide whether to depend on raw values or not
@@ -335,6 +335,7 @@
                     },
                     addRange: function (ranges, model) {
                         inProgress = true;
+                        if(!ranges) return;
                         for (var i = 0; i < ranges.length; i++) {
                             var currentRange = ranges[i], range;
                             if (!currentRange) return;
@@ -426,12 +427,9 @@
 
                 scope.$watch("ngModel", function (newValues, oldValues) {
                     if (inProgress) return;
-                    if (newValues && !isChanging) {
+                    if (!isChanging) {
                         scope.currentModel = newValues;
                         module.updateRanges(newValues);
-                    }
-                    else if (!newValues && oldValues) {
-                        module.clearRanges();
                     }
                 }, true);
                 //#endregion
