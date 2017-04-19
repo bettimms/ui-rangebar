@@ -301,7 +301,6 @@
                         return [start, end];
                     },
                     extractAndAddRanges: function (ranges) {
-                        if(!ranges) return;
                         var extractedRanges = ranges;
                         if (scope.valuesKeyPath) {
                             extractedRanges = this.valueForKeyPath(ranges, scope.valuesKeyPath);
