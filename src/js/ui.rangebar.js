@@ -354,7 +354,7 @@
                     },
                     updateRanges: function (newValues) {
                         this.clearRanges();
-                        this.extractAndAddRanges(newValues);
+                        newValues && this.extractAndAddRanges(newValues);
                         this.updateStatus();
                     }
                 }
