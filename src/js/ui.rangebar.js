@@ -1,7 +1,6 @@
 /**
  * Created by betim on 2/14/2017.
  */
-
 (function (app) {
     function stringContains(string, value) {
         return string.indexOf(value) != -1;
@@ -17,11 +16,13 @@
     });
 
     app.directive("uiRangebar", ["$parse", "$timeout", uiRangebar]);
+
     function uiRangebar($parse, $timeout, uiRangebarConfig) {
         return {
             restrict: "EA",
             scope: {
                 ngModel: "=?ngModel",
+                bgModel: "=?bgModel",
                 uiInstance: "=?"//rangeBar instance
             },
             link: function (scope, element, attrs) {
@@ -30,7 +31,7 @@
                 var changeTimeout = null,//prevent calling multiple times change event, bug by library itself
                     isChanging = false,//helps to not update ngModel from $watch since the update hapens from
                     // changing event
-                    inProgress = false;//prevents calling $watch twice if it's already in progress
+                    inProgress = false;//prevents calling $watch twice if it's already i progress
 
                 //#region Utilities
                 function attrParser(attrName) {
@@ -40,7 +41,7 @@
                     if ((controllerScope === "[object Function]") || (controllerScope === "[object Object]")) {
                         fn = $parse(attrName)(scope);
                     } else if ((controllerAsScope === "[object Function]") || (controllerAsScope === "[object" +
-                        " Object]")) {
+                            " Object]")) {
                         fn = $parse(attrName)(scope.$parent);
                     }
                     return fn;
@@ -98,14 +99,14 @@
                                                 end = rangeObj["$$endPropRaw"] = rangeObj[options.model.bind.endProp];
                                             }
                                             else {
-                                                start = rangeObj["$$startPropRaw"] = rangeObj[scope.bind.startProp] || rangeObj.$model[scope.bind.startProp];
-                                                end = rangeObj["$$endPropRaw"] = rangeObj[scope.bind.endProp] || rangeObj.$model[scope.bind.endProp];
+                                                start = rangeObj["$$startPropRaw"] = rangeObj[scope.bind.startProp] || rangeObj.$data.rangeModel[scope.bind.startProp];
+                                                end = rangeObj["$$endPropRaw"] = rangeObj[scope.bind.endProp] || rangeObj.$data.rangeModel[scope.bind.endProp];
                                             }
                                         }
                                         else {
                                             //Simple model [a,b]
-                                            start = newModel ? newModel[0] : rangeObj.$model[0];
-                                            end = newModel ? newModel[1] : rangeObj.$model[1];
+                                            start = newModel ? newModel[0] : rangeObj.$data.rangeModel[0];
+                                            end = newModel ? newModel[1] : rangeObj.$data.rangeModel[1];
                                         }
                                         var range = [rangeBar.abnormalise(start), rangeBar.abnormalise(end)]
                                         this.val(range);
@@ -124,7 +125,7 @@
                                         }
                                         for (var i = 0; i < values.length; i++) {
                                             var currentRange = values[i];
-                                            if (currentRange === this.$model) {
+                                            if (currentRange === this.$data.rangeModel) {
                                                 values.splice(i, 1);
                                                 if (values.length === 0) module.setNgModel(null);
                                                 else module.setNgModel(this.$data);
@@ -250,12 +251,12 @@
                         return [a, b];
                     },
                     angularizeModel: function (model, normalRange) {
-                        var formattedValues = options.model.formatter(normalRange);
+                        var formattedValues = options.model.formatter ? options.model.formatter(normalRange) : normalRange;
                         angular.merge(model, formattedValues[0]);
                         model.$$startPropRaw = normalRange[0];
                         model.$$endPropRaw = normalRange[1];
 
-                        if (scope.bind.totalSize) {
+                        if (scope.bind && scope.bind.totalSize) {
                             var abnRange = this.abnormalize(normalRange);
                             var total = abnRange[1] - abnRange[0];
                             var totalNormalized = rangeBar.normalise(total);
@@ -265,8 +266,13 @@
                     },
                     angularizeBar: function (bar, index, model) {
                         bar.$$index = index;
-                        bar.$model = model || bar.$model || {};//makes easy to order/sort ngModel
-                        bar.$data.$$modelName = modelName;
+
+                        //Set rangeModel in case of adding it by click on the bar
+                        var normalRange = this.normalize(bar.range);
+                        bar.$data.rangeModel = this.modelFromRange(normalRange);
+                        //$model replaced by $data.rangeModel
+                        // bar.$model = model || bar.$model || {};//makes easy to order/sort ngModel
+                        // bar.$data.$$modelName = modelName;
                     },
                     modelFromRange: function (range, model) {
                         return this.angularizeModel(model || {}, range);
@@ -275,7 +281,7 @@
                         var newModel = [];
                         for (var i = 0; i < ranges.length; i++) {
                             var range = ranges[i],
-                                destinationModel = rangeBar.ranges[i].$model || {}//When new item, comes empty,
+                                destinationModel = rangeBar.ranges[i].$data.rangeModel || {}//When new item, comes empty,
                             sourceModel = this.modelFromRange(range);
                             angular.merge(destinationModel, sourceModel);
                             newModel.push(destinationModel);
@@ -302,7 +308,7 @@
                         return [start, end];
                     },
                     extractAndAddRanges: function (ranges) {
-                        if(!ranges) return;
+                        if (!ranges) return;
                         var extractedRanges = ranges;
                         if (scope.valuesKeyPath) {
                             extractedRanges = this.valueForKeyPath(ranges, scope.valuesKeyPath);
@@ -314,11 +320,19 @@
                     setBarMetadata: function (barEl) {
                         var self = this;
                         if (!barEl) return;
-                        rangeBar.ranges.forEach(function (bar, i) {
+                        for (var i = 0; i < rangeBar.ranges.length; i++) {
+                            var bar = rangeBar.ranges[i];
                             if (bar.$el == barEl) {//Finding index
                                 self.angularizeBar(bar, i);
+                                return i;
                             }
-                        });
+                        }
+                    },
+                    setColor: function (bar, range) {
+                        if (scope.bind && scope.bind.color) {
+                            var color = range[scope.bind.color];
+                            angular.element(bar.$el).css({background: color});
+                        }
                     },
                     setBarData: function (bar, ranges) {
                         var newModel;
@@ -330,24 +344,40 @@
                                 this.setValueForKeyPath(scope.currentModel, scope.valuesKeyPath, []);
                             }
                             newModel = this.modelFromRanges(sortedRanges);
-                            if (bar && typeof bar === "object") bar.$data = newModel;
+                            if (bar && typeof bar === "object") {
+                                if (!bar.$data) bar.$data = {};
+                                bar.$data.model = newModel;
+                            }
                         }
                         var ngModel = newModel || sortedRanges;
                         this.setNgModel(ngModel);
                     },
                     addRange: function (ranges, model) {
                         inProgress = true;
-                        if(!ranges) return;
+                        if (!ranges) return;
                         for (var i = 0; i < ranges.length; i++) {
-                            var currentRange = ranges[i], range;
+                            var currentRange = ranges[i], range, readOnly;
                             if (!currentRange) return;
-                            if (scope.bind) range = this.getRawRange(currentRange);
+                            if (scope.bind) {
+                                range = this.getRawRange(currentRange);
+                                readOnly = currentRange[scope.bind.readOnly];
+                            }
                             else range = currentRange;//simple range [a,b]
 
-                            var bar = rangeBar.addRange(module.abnormalize(range), model || currentRange);
-                            var index = rangeBar.findGap(currentRange) - 1;
+                            var bar = rangeBar.addRange(module.abnormalize(range), {
+                                model: model,
+                                rangeModel: currentRange
+                            });
+                            // var index = rangeBar.findGap(currentRange) - 1;
+                            var index = rangeBar.findGap(currentRange);
                             this.angularizeBar(bar, index, currentRange);
 
+                            if (readOnly) {
+                                bar.$el.off();
+                                bar.$el.addClass("elessar-readonly");
+                                bar.$el.find(".elessar-handle").remove();
+                            }
+                            this.setColor(bar, currentRange);
                             eventHandler.fire.call(rangeBar, options.modelChange, currentRange, bar, index);
                             eventHandler.attachEvents(bar);
                         }
@@ -366,16 +396,14 @@
                     // the sake of performance
                     model: {
                         bind: null,//object, properties to be bound
-                        formatter: null//fn that returns array of start and end values as range
+                        formatter: null//a function that returns start and end range as array in a format that will
+                        // be bound to ngModel(format ngModel to send back to backend
                     },
-                    valueFormat: function (val) {
-                        return val;
-                    }, // formats a value on the bar for output
-                    valueParse: function (val) {
-                        return val;
-                    },
-                    label: function (values) {
-                        return values;
+                    bgRange: {
+                        count: 0,
+                        bg: function (val) {
+                            return val;
+                        }
                     },
                     mousedown: function () {
                     },//internal use
@@ -398,7 +426,7 @@
 
                 //Attach events for predefined bars
                 eventHandler.attachEvents(rangeBar.ranges);
-
+                //#endregion
                 //#region Rangebar events
                 rangeBar.$el.on("changing", function (ev, ranges, bar) {
                     isChanging = true;
@@ -412,10 +440,15 @@
                         changeFn();
                         isChanging = false;
                     }, 0);
+
                     function changeFn() {
                         module.setBarData(changed);
-                        module.setBarMetadata(changed);
-                        eventHandler.fire.call(this, options.change, ev, ranges, changed);
+                        var index = module.setBarMetadata(changed);
+                        if (ranges && ranges.length === 0 || !changed) return;//New item pushed to ngModel. Prevent
+                        // change
+                        // event without any useful
+                        var barIndex = index !== undefined ? index : changed.$$index;
+                        eventHandler.fire.call(this, options.change, ev, ranges, changed, barIndex);
                     }
                 }).on("addrange", function (ev, range, bar) {
                     inProgress = true;
@@ -425,8 +458,65 @@
                     eventHandler.fire.call(this, options.addrange, range, bar, index, true);
                     eventHandler.attachEvents(bar);
                 });
-                //#endregion
 
+                //#endregion
+                //#region $watches
+                scope.$watch("bgModel", function (newValue) {
+                    if (!newValue) return;
+
+                    var bgRange = options.bgRange;
+                    var model = bgRange.bind.valuesKeyPath ? newValue[bgRange.bind.valuesKeyPath] : newValue;
+
+                    if (bgRange.bind && model) {
+                        clearPhantomRanges();
+                        for (var i = 0; i < model.length; i++) {
+                            var rangeObj = model[i];
+                            var shouldApplyBg = bgRange.applyBg(rangeObj);
+                            if (shouldApplyBg) {
+                                var start = rangeObj[bgRange.bind.startProp];
+                                var end = rangeObj[bgRange.bind.endProp];
+                                var color = rangeObj[bgRange.bind.color];
+                                var label = rangeObj[bgRange.bind.label];
+                                var abnRange = module.abnormalize([start, end]);
+                                var newModel = {
+                                    label: label || (start + " - " + end),
+                                    color: color || "",
+                                    range: abnRange
+                                }
+                                addPhantomRange(newModel);
+                            }
+                        }
+                    } else {
+                        //TODO To be implemented
+                        // Case with plain range
+                        // if (!options.bgRange.model) return;
+                        // var count = options.bgRange.model.length;
+                        // for (var k = 0; k < count; k++) {
+                        //     var result = options.bgRange.model[k];
+                        //     var range = module.abnormalize(result);
+                        //     var newModel = {
+                        //         range: range
+                        //     }
+                        //     addPhantomRange(newModel, k);
+                        // }
+                    }
+
+                    function addPhantomRange(model) {
+                        var width = (model.range[1] - model.range[0]) * 100;
+                        var innerText = (model.label && model.label.trim() === "") ? "&nbsp;" : model.label;
+                        angular.element("<div class=\"elessar-phantom bg-range\" style='cursor:default !important;'><span class=\"\">" + innerText + "</span></div>")
+                            .css({
+                                width: width + "%",
+                                left: (100 * model.range[0]) + "%",
+                                background: model.color || ""
+                            }).appendTo(rangeBar.$el);
+                    }
+
+                    function clearPhantomRanges() {
+                        //Clear previous phantom ranges
+                        angular.element(rangeBar.$el).find(".bg-range").remove();
+                    }
+                }, true);
                 scope.$watch("ngModel", function (newValues, oldValues) {
                     if (inProgress) return;
                     if (!isChanging) {

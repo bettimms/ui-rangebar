@@ -63,7 +63,7 @@
             click: function (ev, bar, index) {
                 vm.index = index;
                 vm.bar = bar;
-                vm.range = bar.$model;
+                vm.range = bar.$data.rangeModel;
                 vm.start = vm.range[vm.options.model.bind.startProp];
                 vm.end = vm.range[vm.options.model.bind.endProp];
 
