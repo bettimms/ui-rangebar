@@ -119,7 +119,7 @@
                                         this.remove();
                                         var values = [];
                                         if (scope.valuesKeyPath) {
-                                            values = module.valueForKeyPath(this.$data, scope.valuesKeyPath);
+                                            values = module.valueForKeyPath(this.$data.model, scope.valuesKeyPath);
                                         } else {
                                             values = this.$data;
                                         }
@@ -523,7 +523,7 @@
                         scope.currentModel = newValues;
                         module.updateRanges(newValues);
                     }
-                }, true);
+                });
                 //#endregion
             }
         }
