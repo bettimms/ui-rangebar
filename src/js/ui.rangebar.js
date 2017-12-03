@@ -128,7 +128,7 @@
                                             if (currentRange === this.$data.rangeModel) {
                                                 values.splice(i, 1);
                                                 if (values.length === 0) module.setNgModel(null);
-                                                else module.setNgModel(this.$data);
+                                                else module.setNgModel(this.$data.model);
                                             }
                                         }
                                     }
