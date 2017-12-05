@@ -114,23 +114,8 @@
                                         isChanging = false;
                                     };
                                     el.delete = function () {
-                                        /* Prevent name ambiguity with elessar (and problems), Needed to
-                                         refresh model since no event is raised from elessar in case of remove */
-                                        this.remove();
-                                        var values = [];
-                                        if (scope.valuesKeyPath) {
-                                            values = module.valueForKeyPath(this.$data.model, scope.valuesKeyPath);
-                                        } else {
-                                            values = this.$data;
-                                        }
-                                        for (var i = 0; i < values.length; i++) {
-                                            var currentRange = values[i];
-                                            if (currentRange === this.$data.rangeModel) {
-                                                values.splice(i, 1);
-                                                if (values.length === 0) module.setNgModel(null);
-                                                else module.setNgModel(this.$data.model);
-                                            }
-                                        }
+                                        //Raises change event
+                                        rangeBar.removeRange(this);
                                     }
                                 });
                             }
@@ -344,7 +329,12 @@
                                 this.setValueForKeyPath(scope.currentModel, scope.valuesKeyPath, []);
                             }
                             newModel = this.modelFromRanges(sortedRanges);
-                            if (bar && typeof bar === "object") {
+                            //If it's empty, reset the model to initial state (null)
+                            if (Array.isArray(newModel[scope.valuesKeyPath]) &&
+                                newModel[scope.valuesKeyPath].length === 0) {
+                                newModel = sortedRanges = null;
+                            }
+                            else if (bar && typeof bar === "object") {
                                 if (!bar.$data) bar.$data = {};
                                 bar.$data.model = newModel;
                             }
