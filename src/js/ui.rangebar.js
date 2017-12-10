@@ -93,14 +93,14 @@
                                                     //Update only simple properties
                                                     //Causes infinit loop trying to set to itself the valuesKeyPath
                                                     // object
-                                                    if (!Array.isArray(val)) rangeObj[key] = val;
+                                                    if (!Array.isArray(val)) rangeObj.$data.rangeModel[key] = val;
                                                 });
-                                                start = rangeObj["$$startPropRaw"] = rangeObj[options.model.bind.startProp];
-                                                end = rangeObj["$$endPropRaw"] = rangeObj[options.model.bind.endProp];
+                                                start = rangeObj.$data.rangeModel["$$startPropRaw"] = rangeObj.$data.rangeModel[options.model.bind.startProp];
+                                                end = rangeObj.$data.rangeModel["$$endPropRaw"] = rangeObj.$data.rangeModel[options.model.bind.endProp];
                                             }
                                             else {
-                                                start = rangeObj["$$startPropRaw"] = rangeObj[scope.bind.startProp] || rangeObj.$data.rangeModel[scope.bind.startProp];
-                                                end = rangeObj["$$endPropRaw"] = rangeObj[scope.bind.endProp] || rangeObj.$data.rangeModel[scope.bind.endProp];
+                                                start = rangeObj.$data.rangeModel["$$startPropRaw"] = rangeObj.$data.rangeModel[scope.bind.startProp];
+                                                end = rangeObj.$data.rangeModel["$$endPropRaw"] = rangeObj.$data.rangeModel[scope.bind.endProp];
                                             }
                                         }
                                         else {
@@ -254,7 +254,8 @@
 
                         //Set rangeModel in case of adding it by click on the bar
                         var normalRange = this.normalize(bar.range);
-                        bar.$data.rangeModel = this.modelFromRange(normalRange);
+                        var newModel = this.modelFromRange(normalRange)
+                        bar.$data.rangeModel = Object.assign({},newModel,model);
                         //$model replaced by $data.rangeModel
                         // bar.$model = model || bar.$model || {};//makes easy to order/sort ngModel
                         // bar.$data.$$modelName = modelName;
