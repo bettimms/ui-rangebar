@@ -464,17 +464,7 @@
                             var rangeObj = model[i];
                             var shouldApplyBg = bgRange.applyBg(rangeObj);
                             if (shouldApplyBg) {
-                                var start = rangeObj[bgRange.bind.startProp];
-                                var end = rangeObj[bgRange.bind.endProp];
-                                var color = rangeObj[bgRange.bind.color];
-                                var label = rangeObj[bgRange.bind.label];
-                                var abnRange = module.abnormalize([start, end]);
-                                var newModel = {
-                                    label: label || (start + " - " + end),
-                                    color: color || "",
-                                    range: abnRange
-                                }
-                                addPhantomRange(newModel);
+                                addPhantomRange(rangeObj);
                             }
                         }
                     } else {
@@ -492,7 +482,21 @@
                         // }
                     }
 
-                    function addPhantomRange(model) {
+                    function getRangeModel(model) {
+                        var start = rangeObj[bgRange.bind.startProp];
+                        var end = rangeObj[bgRange.bind.endProp];
+                        var color = rangeObj[bgRange.bind.color];
+                        var label = rangeObj[bgRange.bind.label];
+                        var abnRange = module.abnormalize([start, end]);
+                        var newModel = {
+                            label: label || (start + " - " + end),
+                            color: color || "",
+                            range: abnRange
+                        }
+                        return newModel;
+                    }
+                    function addPhantomRange(rangeObj) {
+                        var model = getRangeModel(rangeObj);
                         var width = (model.range[1] - model.range[0]) * 100;
                         var innerText = (model.label && model.label.trim() === "") ? "&nbsp;" : model.label;
                         angular.element("<div class=\"elessar-phantom bg-range\" style='cursor:default !important;'><span class=\"\">" + innerText + "</span></div>")
@@ -500,7 +504,13 @@
                                 width: width + "%",
                                 left: (100 * model.range[0]) + "%",
                                 background: model.color || ""
-                            }).appendTo(rangeBar.$el);
+                            }).on("mousedown", function (ev) {
+                            if (ev.which === 3 && options.bgRange.rightClick) {
+                                eventHandler.fire.call(this, options.bgRange.rightClick, ev, rangeObj);
+                            }
+
+                        })
+                            .appendTo(rangeBar.$el);
                     }
 
                     function clearPhantomRanges() {
