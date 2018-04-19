@@ -453,7 +453,7 @@
                 //#endregion
                 //#region $watches
                 scope.$watch("bgModel", function (newValue) {
-                    if (!newValue) return;
+                    if (!newValue || !bgRange.bind) return;
 
                     var bgRange = options.bgRange;
                     var model = bgRange.bind.valuesKeyPath ? newValue[bgRange.bind.valuesKeyPath] : newValue;
