@@ -237,10 +237,7 @@ $scope.rangeBarInstance = {};
 <ui-rangebar ng-model="values" ui-options="options" ui-instance="rangeBarInstance"></ui-rangebar>
 ```
 
-## Contact
-
 [GitHub](https://github.com/bettimms).
-
 
 
 Licence
